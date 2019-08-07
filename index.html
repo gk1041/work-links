@@ -27,7 +27,7 @@
 		input {
 			border: 0;
 			font: 400 1.2rem monospace;
-			padding: 8px;
+			padding: 0.6rem;
 		}
 		input:focus {
 			outline: none;
@@ -49,20 +49,26 @@
 		}
 
 		.links-list {
-			margin: 20px 0;
+			margin: 1.2rem 0;
 		}
 		.links-list .link {
 			display: flex;
 			align-items: center;
-			padding: 10px;
-			width: 175px;
+			padding: 0.8rem;
+			width: 20rem;
 			background: #c6cfd4;
 			font-size: 1.2rem;
-			border-radius: 50px;
+			border-radius: 2rem;
 			cursor: pointer;
+			margin: 1.2rem;
 		}
 		.links-list .link span {
-			margin-left: 8px;
+			margin-left: 1rem;
+		}
+
+		.links-list .link img {
+			width: 2.6rem;
+			height: 2.6rem;
 		}
 	</style>
 </head>
@@ -76,10 +82,78 @@
 	</div>
 
 	<div class="links-list">
-		<div class="link">
+		<div class="link" data-link="https://app.logdna.com">
 			<img src="https://app.logdna.com/favicon.ico" alt="logo missing">
 			<span>LogDNA</span>
 		</div>
 	</div>
 </body>
+
+<script>
+	document.addEventListener("DOMContentLoaded", function () {
+		console.log('testing');
+
+		var saveLinkBtn = document.querySelector("button.save-link");
+		saveLinkBtn.addEventListener("click", function(e) {
+			console.log("Button clicked.");
+			saveLink();
+		});
+
+		function addLinkListener() {
+			var linkBtnArr = document.querySelectorAll("div.link");
+			linkBtnArr.forEach(function(linkBtn) {
+				linkBtn.addEventListener("click", goToLink);
+			})
+		}
+
+		function removeLinkListeners() {
+			var linkBtnArr = document.querySelectorAll("div.link");
+			linkBtnArr.forEach(function (linkBtn) {
+				linkBtn.removeEventListener("click", goToLink);
+			});
+		}
+
+		function goToLink(e) {
+			console.log("Link clicked.");
+			var link = this.dataset.link || '';
+			if (link.length === 0) {
+				return;
+			}
+			window.location = link;
+		}
+
+		function saveLink() {
+			var url = document.querySelector('input.url').value || '';
+			if (url.length === 0) {
+				return;
+			}
+
+			// silly copy paste for URL obj
+			var prefix = 'http://';
+			var prefix2 = 'https://';
+			if (url.substr(0, prefix.length) !== prefix &&
+				url.substr(0, prefix2.length) !== prefix2) {
+				url = prefix + url;
+			}
+
+			var urlObj = new URL(url);
+			var label = document.querySelector('input.label').value || urlObj.hostname;
+
+			// remove listeners before adding new one
+			removeLinkListeners();
+
+			var newLink = '<div class="link" data-link="' + urlObj.origin + '">' +
+				'<img src="' + urlObj.origin + '/favicon.ico" alt="logo missing">' +
+				'<span>' + label + '</span>' +
+				'</div>';
+			// Insert the element after our target element
+			var target = document.querySelector('.links-list');
+			var oldInnerHtml = target.innerHTML;
+			target.innerHTML = oldInnerHtml + newLink;
+
+			// add listeners back
+			addLinkListener();
+		}
+	});
+</script>
 </html>
